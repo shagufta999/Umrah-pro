@@ -1,46 +1,5 @@
-# Core Framework
-streamlit>=1.28.0
-
-# Database
-sqlite3  # Built-in with Python
-
-# HTTP Requests
-requests>=2.31.0
-
-# Email Service
-sendgrid>=6.10.0
-
-# SMS & WhatsApp
-twilio>=8.10.0
-
-# Push Notifications
-firebase-admin>=6.2.0
-
-# Environment Variables
-python-dotenv>=1.0.0
-
-# Data Processing
-pandas>=2.1.0
-
-# Date/Time
-python-dateutil>=2.8.2
-
-# UUID (Built-in)
-uuid  # Built-in with Python
-
-# Hashing (Built-in)
-hashlib  # Built-in with Python
-
-# Optional - For advanced features
-# pillow>=10.0.0  # Image processing
-# matplotlib>=3.7.0  # Charts
-# plotly>=5.17.0  # Interactive charts
-
-beautifulsoup4>=4.12.0
-lxml>=4.9.0
-
-streamlit==1.31.0
-requests==2.31.0
-beautifulsoup4==4.12.3
-pandas==2.2.0
-pytz==2024.1
+streamlit
+   requests
+   beautifulsoup4
+   pandas
+   pytz
