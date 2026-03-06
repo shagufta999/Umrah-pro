@@ -222,30 +222,7 @@ if not st.session_state.admin_logged_in:
                 else:
                     st.error("❌ Invalid credentials")
         
-        st.markdown("---")
-        
-        # First time setup
-        with st.expander("🆕 First Time Setup - Create Admin Account"):
-            st.warning("⚠️ Only use this if you don't have an admin account yet!")
-            
-            with st.form("create_admin"):
-                new_admin_user = st.text_input("New Admin Username")
-                new_admin_pwd = st.text_input("New Admin Password", type="password")
-                confirm_pwd = st.text_input("Confirm Password", type="password")
-                
-                create_submit = st.form_submit_button("Create Admin Account", type="primary")
-                
-                if create_submit:
-                    if len(new_admin_pwd) < 8:
-                        st.error("❌ Password must be at least 8 characters")
-                    elif new_admin_pwd != confirm_pwd:
-                        st.error("❌ Passwords don't match")
-                    else:
-                        if create_admin(new_admin_user, new_admin_pwd):
-                            st.success("✅ Admin account created! Please login above.")
-                        else:
-                            st.error("❌ Username already exists")
-
+        st.markdown("---")       
 else:
     # ========== LOGGED IN VIEW ==========
     
@@ -2667,4 +2644,5 @@ P.S. We're only accepting 100 Early Bird partners. Currently at 68/100."""
                 backup_file = f'umrah_pro_backup_{datetime.now().strftime("%Y%m%d_%H%M%S")}.db'
                 shutil.copy('umrah_pro.db', backup_file)
                 
+
                 st.success(f"✅ Backup created: {backup_file}")
