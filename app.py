@@ -607,10 +607,13 @@ def init_db():
                   phone TEXT, latitude REAL, longitude REAL, location_name TEXT,
                   status TEXT, battery INTEGER, last_updated TIMESTAMP)''')
     
-    # User progress table
+    # User progress table WITH guide_type
     c.execute('''CREATE TABLE IF NOT EXISTS user_progress
-                 (user_id TEXT, step_id INTEGER, completed BOOLEAN,
-                  PRIMARY KEY(user_id, step_id))''')
+                 (user_id TEXT, 
+                  step_id INTEGER, 
+                  guide_type TEXT DEFAULT 'umrah',
+                  completed BOOLEAN,
+                  PRIMARY KEY(user_id, step_id, guide_type))''')
     
     # Bookmarks table
     c.execute('''CREATE TABLE IF NOT EXISTS bookmarks
@@ -680,11 +683,50 @@ def init_db():
                   onboarding_status TEXT,
                   notes TEXT)''')
     
+    # Prayer notifications table
+    c.execute('''CREATE TABLE IF NOT EXISTS prayer_notifications
+                 (user_id TEXT PRIMARY KEY,
+                  enabled BOOLEAN,
+                  fajr BOOLEAN,
+                  dhuhr BOOLEAN,
+                  asr BOOLEAN,
+                  maghrib BOOLEAN,
+                  isha BOOLEAN,
+                  minutes_before INTEGER,
+                  latitude REAL,
+                  longitude REAL,
+                  timezone TEXT,
+                  calculation_method INTEGER)''')
+    
+    # Quran memorization table
+    c.execute('''CREATE TABLE IF NOT EXISTS quran_memorization
+                 (user_id TEXT,
+                  surah_number INTEGER,
+                  ayah_number INTEGER,
+                  status TEXT,
+                  memorized_date TIMESTAMP,
+                  last_reviewed TIMESTAMP,
+                  review_count INTEGER DEFAULT 0,
+                  PRIMARY KEY(user_id, surah_number, ayah_number))''')
+    
+    # Bookings table
+    c.execute('''CREATE TABLE IF NOT EXISTS bookings
+                 (booking_id TEXT PRIMARY KEY,
+                  package_id TEXT,
+                  agent_id TEXT,
+                  customer_name TEXT,
+                  customer_email TEXT,
+                  customer_phone TEXT,
+                  travelers INTEGER,
+                  departure_date TEXT,
+                  return_date TEXT,
+                  total_amount REAL,
+                  payment_status TEXT,
+                  booking_status TEXT,
+                  booking_date TIMESTAMP)''')
+    
     conn.commit()
     conn.close()
-
-init_db()
-
 # ========== AUTH FUNCTIONS ==========
 
 def hash_password(pwd):
@@ -4271,4 +4313,5 @@ else:
         <p>May Allah accept your Umrah!</p>
         <p style="font-size:0.9rem;opacity:0.9;">Umrah Pro v3.1 • Made with ❤️</p>
     </div>
+
     """, unsafe_allow_html=True)
