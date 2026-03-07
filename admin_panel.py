@@ -86,10 +86,93 @@ def init_admin_db():
                   role TEXT,
                   created_at TIMESTAMP)''')
     
+    # Users table
+    c.execute('''CREATE TABLE IF NOT EXISTS users
+                 (id TEXT PRIMARY KEY, 
+                  username TEXT UNIQUE, 
+                  password_hash TEXT, 
+                  email TEXT, 
+                  phone TEXT, 
+                  country TEXT, 
+                  subscription TEXT DEFAULT 'free',
+                  created_at TIMESTAMP)''')
+    
+    # Agent partners table
+    c.execute('''CREATE TABLE IF NOT EXISTS agent_partners
+                 (agent_id TEXT PRIMARY KEY,
+                  agent_name TEXT,
+                  company_name TEXT,
+                  email TEXT,
+                  phone TEXT,
+                  website TEXT,
+                  commission_rate REAL,
+                  payment_method TEXT,
+                  bank_details TEXT,
+                  status TEXT,
+                  joined_date TIMESTAMP,
+                  onboarding_status TEXT,
+                  notes TEXT)''')
+    
+    # Packages table
+    c.execute('''CREATE TABLE IF NOT EXISTS packages
+                 (package_id TEXT PRIMARY KEY,
+                  agent_id TEXT,
+                  package_name TEXT,
+                  duration_days INTEGER,
+                  duration_nights INTEGER,
+                  price REAL,
+                  category TEXT,
+                  departure_city TEXT,
+                  target_countries TEXT,
+                  departure_dates TEXT,
+                  makkah_hotel TEXT,
+                  makkah_hotel_rating INTEGER,
+                  makkah_distance TEXT,
+                  madinah_hotel TEXT,
+                  madinah_hotel_rating INTEGER,
+                  madinah_distance TEXT,
+                  inclusions TEXT,
+                  exclusions TEXT,
+                  group_size TEXT,
+                  status TEXT,
+                  featured BOOLEAN DEFAULT 0,
+                  views INTEGER DEFAULT 0,
+                  inquiries INTEGER DEFAULT 0,
+                  created_at TIMESTAMP,
+                  updated_at TIMESTAMP)''')
+    
+    # Package inquiries table
+    c.execute('''CREATE TABLE IF NOT EXISTS package_inquiries
+                 (inquiry_id TEXT PRIMARY KEY,
+                  package_id TEXT,
+                  agent_id TEXT,
+                  customer_name TEXT,
+                  customer_email TEXT,
+                  customer_phone TEXT,
+                  travelers INTEGER,
+                  preferred_date TEXT,
+                  message TEXT,
+                  status TEXT,
+                  inquiry_date TIMESTAMP)''')
+    
+    # Bookings table
+    c.execute('''CREATE TABLE IF NOT EXISTS bookings
+                 (booking_id TEXT PRIMARY KEY,
+                  package_id TEXT,
+                  agent_id TEXT,
+                  customer_name TEXT,
+                  customer_email TEXT,
+                  customer_phone TEXT,
+                  travelers INTEGER,
+                  departure_date TEXT,
+                  return_date TEXT,
+                  total_amount REAL,
+                  payment_status TEXT,
+                  booking_status TEXT,
+                  booking_date TIMESTAMP)''')
+    
     conn.commit()
     conn.close()
-
-init_admin_db()
 
 def hash_password(pwd):
     """Hash password"""
@@ -2646,3 +2729,4 @@ P.S. We're only accepting 100 Early Bird partners. Currently at 68/100."""
                 
 
                 st.success(f"✅ Backup created: {backup_file}")
+
