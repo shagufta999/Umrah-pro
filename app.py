@@ -17,6 +17,146 @@ import random
 import math
 import pandas as pd
 
+# ========== DATABASE INITIALIZATION ==========
+
+def init_db():
+    """Initialize all database tables"""
+    conn = sqlite3.connect('umrah_pro.db')
+    c = conn.cursor()
+    
+    # Users table with country field
+    c.execute('''CREATE TABLE IF NOT EXISTS users
+                 (id TEXT PRIMARY KEY, username TEXT UNIQUE, password_hash TEXT, 
+                  email TEXT, phone TEXT, country TEXT, subscription TEXT DEFAULT 'free',
+                  created_at TIMESTAMP)''')
+    
+    # Family members table
+    c.execute('''CREATE TABLE IF NOT EXISTS family_members
+                 (id TEXT PRIMARY KEY, user_id TEXT, name TEXT, relationship TEXT,
+                  phone TEXT, latitude REAL, longitude REAL, location_name TEXT,
+                  status TEXT, battery INTEGER, last_updated TIMESTAMP)''')
+    
+    # User progress table WITH guide_type
+    c.execute('''CREATE TABLE IF NOT EXISTS user_progress
+                 (user_id TEXT, 
+                  step_id INTEGER, 
+                  guide_type TEXT DEFAULT 'umrah',
+                  completed BOOLEAN,
+                  PRIMARY KEY(user_id, step_id, guide_type))''')
+    
+    # Bookmarks table
+    c.execute('''CREATE TABLE IF NOT EXISTS bookmarks
+                 (id TEXT PRIMARY KEY, user_id TEXT, type TEXT, 
+                  name TEXT, details TEXT, created_at TIMESTAMP)''')
+    
+    # Checklist progress table
+    c.execute('''CREATE TABLE IF NOT EXISTS checklist_progress
+                 (user_id TEXT, category TEXT, item TEXT, checked BOOLEAN,
+                  PRIMARY KEY(user_id, category, item))''')
+    
+    # Package inquiries table
+    c.execute('''CREATE TABLE IF NOT EXISTS package_inquiries
+                 (inquiry_id TEXT PRIMARY KEY,
+                  package_id TEXT,
+                  agent_id TEXT,
+                  customer_name TEXT,
+                  customer_email TEXT,
+                  customer_phone TEXT,
+                  travelers INTEGER,
+                  preferred_date TEXT,
+                  message TEXT,
+                  status TEXT,
+                  inquiry_date TIMESTAMP)''')
+    
+    # Packages table with target_countries field
+    c.execute('''CREATE TABLE IF NOT EXISTS packages
+                 (package_id TEXT PRIMARY KEY,
+                  agent_id TEXT,
+                  package_name TEXT,
+                  duration_days INTEGER,
+                  duration_nights INTEGER,
+                  price REAL,
+                  category TEXT,
+                  departure_city TEXT,
+                  target_countries TEXT,
+                  departure_dates TEXT,
+                  makkah_hotel TEXT,
+                  makkah_hotel_rating INTEGER,
+                  makkah_distance TEXT,
+                  madinah_hotel TEXT,
+                  madinah_hotel_rating INTEGER,
+                  madinah_distance TEXT,
+                  inclusions TEXT,
+                  exclusions TEXT,
+                  group_size TEXT,
+                  status TEXT,
+                  featured BOOLEAN DEFAULT 0,
+                  views INTEGER DEFAULT 0,
+                  inquiries INTEGER DEFAULT 0,
+                  created_at TIMESTAMP,
+                  updated_at TIMESTAMP)''')
+    
+    # Agent partners table
+    c.execute('''CREATE TABLE IF NOT EXISTS agent_partners
+                 (agent_id TEXT PRIMARY KEY,
+                  agent_name TEXT,
+                  company_name TEXT,
+                  email TEXT,
+                  phone TEXT,
+                  website TEXT,
+                  commission_rate REAL,
+                  payment_method TEXT,
+                  bank_details TEXT,
+                  status TEXT,
+                  joined_date TIMESTAMP,
+                  onboarding_status TEXT,
+                  notes TEXT)''')
+    
+    # Prayer notifications table
+    c.execute('''CREATE TABLE IF NOT EXISTS prayer_notifications
+                 (user_id TEXT PRIMARY KEY,
+                  enabled BOOLEAN,
+                  fajr BOOLEAN,
+                  dhuhr BOOLEAN,
+                  asr BOOLEAN,
+                  maghrib BOOLEAN,
+                  isha BOOLEAN,
+                  minutes_before INTEGER,
+                  latitude REAL,
+                  longitude REAL,
+                  timezone TEXT,
+                  calculation_method INTEGER)''')
+    
+    # Quran memorization table
+    c.execute('''CREATE TABLE IF NOT EXISTS quran_memorization
+                 (user_id TEXT,
+                  surah_number INTEGER,
+                  ayah_number INTEGER,
+                  status TEXT,
+                  memorized_date TIMESTAMP,
+                  last_reviewed TIMESTAMP,
+                  review_count INTEGER DEFAULT 0,
+                  PRIMARY KEY(user_id, surah_number, ayah_number))''')
+    
+    # Bookings table
+    c.execute('''CREATE TABLE IF NOT EXISTS bookings
+                 (booking_id TEXT PRIMARY KEY,
+                  package_id TEXT,
+                  agent_id TEXT,
+                  customer_name TEXT,
+                  customer_email TEXT,
+                  customer_phone TEXT,
+                  travelers INTEGER,
+                  departure_date TEXT,
+                  return_date TEXT,
+                  total_amount REAL,
+                  payment_status TEXT,
+                  booking_status TEXT,
+                  booking_date TIMESTAMP)''')
+    
+    conn.commit()
+    conn.close()
+
 # ========== PAGE CONFIG ==========
 st.set_page_config(
     page_title="Umrah Pro - Your Complete Umrah Planning Companion",
@@ -588,145 +728,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ========== DATABASE INITIALIZATION ==========
-
-def init_db():
-    """Initialize all database tables"""
-    conn = sqlite3.connect('umrah_pro.db')
-    c = conn.cursor()
-    
-    # Users table with country field
-    c.execute('''CREATE TABLE IF NOT EXISTS users
-                 (id TEXT PRIMARY KEY, username TEXT UNIQUE, password_hash TEXT, 
-                  email TEXT, phone TEXT, country TEXT, subscription TEXT DEFAULT 'free',
-                  created_at TIMESTAMP)''')
-    
-    # Family members table
-    c.execute('''CREATE TABLE IF NOT EXISTS family_members
-                 (id TEXT PRIMARY KEY, user_id TEXT, name TEXT, relationship TEXT,
-                  phone TEXT, latitude REAL, longitude REAL, location_name TEXT,
-                  status TEXT, battery INTEGER, last_updated TIMESTAMP)''')
-    
-    # User progress table WITH guide_type
-    c.execute('''CREATE TABLE IF NOT EXISTS user_progress
-                 (user_id TEXT, 
-                  step_id INTEGER, 
-                  guide_type TEXT DEFAULT 'umrah',
-                  completed BOOLEAN,
-                  PRIMARY KEY(user_id, step_id, guide_type))''')
-    
-    # Bookmarks table
-    c.execute('''CREATE TABLE IF NOT EXISTS bookmarks
-                 (id TEXT PRIMARY KEY, user_id TEXT, type TEXT, 
-                  name TEXT, details TEXT, created_at TIMESTAMP)''')
-    
-    # Checklist progress table
-    c.execute('''CREATE TABLE IF NOT EXISTS checklist_progress
-                 (user_id TEXT, category TEXT, item TEXT, checked BOOLEAN,
-                  PRIMARY KEY(user_id, category, item))''')
-    
-    # Package inquiries table
-    c.execute('''CREATE TABLE IF NOT EXISTS package_inquiries
-                 (inquiry_id TEXT PRIMARY KEY,
-                  package_id TEXT,
-                  agent_id TEXT,
-                  customer_name TEXT,
-                  customer_email TEXT,
-                  customer_phone TEXT,
-                  travelers INTEGER,
-                  preferred_date TEXT,
-                  message TEXT,
-                  status TEXT,
-                  inquiry_date TIMESTAMP)''')
-    
-    # Packages table with target_countries field
-    c.execute('''CREATE TABLE IF NOT EXISTS packages
-                 (package_id TEXT PRIMARY KEY,
-                  agent_id TEXT,
-                  package_name TEXT,
-                  duration_days INTEGER,
-                  duration_nights INTEGER,
-                  price REAL,
-                  category TEXT,
-                  departure_city TEXT,
-                  target_countries TEXT,
-                  departure_dates TEXT,
-                  makkah_hotel TEXT,
-                  makkah_hotel_rating INTEGER,
-                  makkah_distance TEXT,
-                  madinah_hotel TEXT,
-                  madinah_hotel_rating INTEGER,
-                  madinah_distance TEXT,
-                  inclusions TEXT,
-                  exclusions TEXT,
-                  group_size TEXT,
-                  status TEXT,
-                  featured BOOLEAN DEFAULT 0,
-                  views INTEGER DEFAULT 0,
-                  inquiries INTEGER DEFAULT 0,
-                  created_at TIMESTAMP,
-                  updated_at TIMESTAMP)''')
-    
-    # Agent partners table
-    c.execute('''CREATE TABLE IF NOT EXISTS agent_partners
-                 (agent_id TEXT PRIMARY KEY,
-                  agent_name TEXT,
-                  company_name TEXT,
-                  email TEXT,
-                  phone TEXT,
-                  website TEXT,
-                  commission_rate REAL,
-                  payment_method TEXT,
-                  bank_details TEXT,
-                  status TEXT,
-                  joined_date TIMESTAMP,
-                  onboarding_status TEXT,
-                  notes TEXT)''')
-    
-    # Prayer notifications table
-    c.execute('''CREATE TABLE IF NOT EXISTS prayer_notifications
-                 (user_id TEXT PRIMARY KEY,
-                  enabled BOOLEAN,
-                  fajr BOOLEAN,
-                  dhuhr BOOLEAN,
-                  asr BOOLEAN,
-                  maghrib BOOLEAN,
-                  isha BOOLEAN,
-                  minutes_before INTEGER,
-                  latitude REAL,
-                  longitude REAL,
-                  timezone TEXT,
-                  calculation_method INTEGER)''')
-    
-    # Quran memorization table
-    c.execute('''CREATE TABLE IF NOT EXISTS quran_memorization
-                 (user_id TEXT,
-                  surah_number INTEGER,
-                  ayah_number INTEGER,
-                  status TEXT,
-                  memorized_date TIMESTAMP,
-                  last_reviewed TIMESTAMP,
-                  review_count INTEGER DEFAULT 0,
-                  PRIMARY KEY(user_id, surah_number, ayah_number))''')
-    
-    # Bookings table
-    c.execute('''CREATE TABLE IF NOT EXISTS bookings
-                 (booking_id TEXT PRIMARY KEY,
-                  package_id TEXT,
-                  agent_id TEXT,
-                  customer_name TEXT,
-                  customer_email TEXT,
-                  customer_phone TEXT,
-                  travelers INTEGER,
-                  departure_date TEXT,
-                  return_date TEXT,
-                  total_amount REAL,
-                  payment_status TEXT,
-                  booking_status TEXT,
-                  booking_date TIMESTAMP)''')
-    
-    conn.commit()
-    conn.close()
 # ========== AUTH FUNCTIONS ==========
 
 def hash_password(pwd):
@@ -4315,3 +4316,4 @@ else:
     </div>
 
     """, unsafe_allow_html=True)
+
