@@ -300,6 +300,30 @@ def init_all_tables():
                       payment_status TEXT DEFAULT 'Pending',
                       booking_status TEXT DEFAULT 'Confirmed',
                       booking_date TIMESTAMP)''')
+
+        # Family members table
+        c.execute('''CREATE TABLE IF NOT EXISTS family_members
+                     (id TEXT PRIMARY KEY, 
+                      user_id TEXT NOT NULL, 
+                      name TEXT NOT NULL, 
+                      relationship TEXT,
+                      phone TEXT, 
+                      latitude REAL, 
+                      longitude REAL, 
+                      location_name TEXT,
+                      status TEXT DEFAULT 'Not tracking', 
+                      battery INTEGER DEFAULT 100, 
+                      last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
+        
+        # Agent credentials table (for agent login)
+        c.execute('''CREATE TABLE IF NOT EXISTS agent_credentials
+                     (credential_id TEXT PRIMARY KEY,
+                      agent_id TEXT UNIQUE NOT NULL,
+                      username TEXT UNIQUE NOT NULL,
+                      password_hash TEXT NOT NULL,
+                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                      last_login TIMESTAMP,
+                      FOREIGN KEY (agent_id) REFERENCES agent_partners(agent_id))''')
         
         conn.commit()
         print("✅ All database tables initialized successfully")
@@ -1795,7 +1819,7 @@ P.S. We're only accepting 100 Early Bird partners. Currently at 68/100."""
             preview_container = st.container()
             with preview_container:
                 st.text_area(
-                    label="",
+                    label="Content",
                     value=email_body,
                     height=500,
                     disabled=True,
@@ -3256,4 +3280,5 @@ P.S. We're only accepting 100 Early Bird partners. Currently at 68/100."""
                 backup_file = f'umrah_pro_backup_{datetime.now().strftime("%Y%m%d_%H%M%S")}.db'
                 shutil.copy('umrah_pro.db', backup_file)
                 
+
                 st.success(f"✅ Backup created: {backup_file}")
